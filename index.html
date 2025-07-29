@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>డైనమిక్ ఎలక్ట్రాన్ విన్యాసం మోడల్</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #001f3f, #003366);
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(0, 30, 60, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            padding: 25px;
+            background: rgba(0, 40, 80, 0.9);
+            border-bottom: 2px solid #0074D9;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: #7FDBFF;
+            text-shadow: 0 0 10px rgba(127, 219, 255, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+            color: #DDDDDD;
+        }
+        
+        .content {
+            display: flex;
+            padding: 30px;
+            gap: 30px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            background: rgba(0, 50, 100, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #7FDBFF;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.2rem;
+            border: 2px solid #0074D9;
+            border-radius: 10px;
+            background: rgba(0, 30, 60, 0.8);
+            color: white;
+            outline: none;
+        }
+        
+        input:focus {
+            border-color: #7FDBFF;
+            box-shadow: 0 0 10px rgba(127, 219, 255, 0.5);
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            background: #0074D9;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 86, 179, 0.4);
+        }
+        
+        .info-box {
+            background: rgba(0, 40, 80, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-title {
+            font-size: 1.4rem;
+            color: #7FDBFF;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .element-info {
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+        
+        .atom-display {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+            background: rgba(0, 30, 60, 0.6);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .atom-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+        }
+        
+        .nucleus {
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle, #ff4136, #d10000);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px #ff4136;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        
+        .shell {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: rotate linear infinite;
+        }
+        
+        .electron {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #0074D9, #001f3f);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 15px #7fdbff;
+            z-index: 5;
+        }
+        
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .examples {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .example-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            background: rgba(0, 100, 200, 0.3);
+            border: 1px solid #0074D9;
+            border-radius: 8px;
+            color: #7FDBFF;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .example-btn:hover {
+            background: rgba(0, 100, 200, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 20, 40, 0.9);
+            color: #AAAAAA;
+            font-size: 1rem;
+            border-top: 1px solid #0074D9;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 900px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .atom-display {
+                min-height: 400px;
+            }
+            
+            .atom-container {
+                width: 350px;
+                height: 350px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>డైనమిక్ ఎలక్ట్రాన్ విన్యాసం మోడల్</h1>
+            <p class="subtitle">ఈ ఇంటరాక్టివ్ మోడల్‌లో మీరు పరమాణు సంఖ్యను ఎంచుకోవచ్చు, ఆ పరమాణువు యొక్క ఎలక్ట్రాన్ విన్యాసాన్ని విజువల్‌గా చూడవచ్చు. ప్రతి కక్ష్యలోని ఎలక్ట్రాన్ల సంఖ్యను, వాటి గమనాన్ని ఈ మోడల్‌లో పరిశీలించవచ్చు.</p>
+        </header>
+        
+        <div class="content">
+            <div class="control-panel">
+                <div class="input-group">
+                    <label for="atomic-number">పరమాణు సంఖ్యను నమోదు చేయండి (1-20):</label>
+                    <input type="number" id="atomic-number" min="1" max="20" value="3">
+                    <button id="generate-atom">పరమాణువును ప్రదర్శించు</button>
+                </div>
+                
+                <div class="examples">
+                    <div class="example-btn" data-number="1">హైడ్రోజన్ (1)</div>
+                    <div class="example-btn" data-number="2">హీలియం (2)</div>
+                    <div class="example-btn" data-number="3">లిథియం (3)</div>
+                    <div class="example-btn" data-number="6">కార్బన్ (6)</div>
+                    <div class="example-btn" data-number="10">నియాన్ (10)</div>
+                </div>
+                
+                <div class="info-box">
+                    <h3 class="info-title">పరమాణు సమాచారం</h3>
+                    <div class="element-info">
+                        <div id="element-name">మూలకం: లిథియం</div>
+                        <div id="element-symbol">సంకేతం: Li</div>
+                        <div id="atomic-number-display">పరమాణు సంఖ్య: 3</div>
+                        <div id="electron-config">ఎలక్ట్రాన్ విన్యాసం: 2, 1</div>
+                        <div id="electron-shells">కక్ష్యలు: K=2, L=1</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="atom-display">
+                <div class="atom-container" id="atom-container">
+                    <div class="nucleus">3p⁺<br>4n⁰</div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>డైనమిక్ ఎలక్ట్రాన్ విన్యాసం మోడల్ | భౌతిక శాస్త్ర విద్యా సాధనం</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const atomContainer = document.getElementById('atom-container');
+            const atomicNumberInput = document.getElementById('atomic-number');
+            const generateButton = document.getElementById('generate-atom');
+            const exampleButtons = document.querySelectorAll('.example-btn');
+            
+            // Element data for atomic numbers 1-20
+            const elements = {
+                1: { name: "హైడ్రోజన్", symbol: "H", config: [1] },
+                2: { name: "హీలియం", symbol: "He", config: [2] },
+                3: { name: "లిథియం", symbol: "Li", config: [2, 1] },
+                4: { name: "బెరిలియం", symbol: "Be", config: [2, 2] },
+                5: { name: "బోరాన్", symbol: "B", config: [2, 3] },
+                6: { name: "కార్బన్", symbol: "C", config: [2, 4] },
+                7: { name: "నత్రజని", symbol: "N", config: [2, 5] },
+                8: { name: "ఆక్సిజన్", symbol: "O", config: [2, 6] },
+                9: { name: "ఫ్లోరిన్", symbol: "F", config: [2, 7] },
+                10: { name: "నియాన్", symbol: "Ne", config: [2, 8] },
+                11: { name: "సోడియం", symbol: "Na", config: [2, 8, 1] },
+                12: { name: "మెగ్నీషియం", symbol: "Mg", config: [2, 8, 2] },
+                13: { name: "అల్యూమినియం", symbol: "Al", config: [2, 8, 3] },
+                14: { name: "సిలికాన్", symbol: "Si", config: [2, 8, 4] },
+                15: { name: "భాస్వరం", symbol: "P", config: [2, 8, 5] },
+                16: { name: "గంధకం", symbol: "S", config: [2, 8, 6] },
+                17: { name: "క్లోరిన్", symbol: "Cl", config: [2, 8, 7] },
+                18: { name: "ఆర్గాన్", symbol: "Ar", config: [2, 8, 8] },
+                19: { name: "పొటాషియం", symbol: "K", config: [2, 8, 8, 1] },
+                20: { name: "కాల్షియం", symbol: "Ca", config: [2, 8, 8, 2] }
+            };
+            
+            // Function to create atom model
+            function createAtom(atomicNumber) {
+                // Clear previous atom
+                atomContainer.innerHTML = '<div class="nucleus">' + atomicNumber + 'p⁺<br>' + 
+                                          Math.round(atomicNumber * 1.2) + 'n⁰</div>';
+                
+                // Get electron configuration
+                const electronConfig = elements[atomicNumber].config;
+                
+                // Create shells and electrons
+                electronConfig.forEach((electronCount, shellIndex) => {
+                    const shell = document.createElement('div');
+                    const shellSize = 150 + (shellIndex * 100);
+                    shell.className = `shell shell-${shellIndex+1}`;
+                    shell.style.width = `${shellSize}px`;
+                    shell.style.height = `${shellSize}px`;
+                    
+                    // Set different rotation speeds for each shell
+                    const rotationSpeed = 30 + (shellIndex * 10);
+                    shell.style.animation = `rotate ${rotationSpeed}s linear infinite`;
+                    
+                    // Create electrons
+                    for (let i = 0; i < electronCount; i++) {
+                        const electron = document.createElement('div');
+                        electron.className = 'electron';
+                        
+                        // Distribute electrons evenly around the shell
+                        const angle = (i / electronCount) * 2 * Math.PI;
+                        const x = (shellSize / 2) * Math.cos(angle);
+                        const y = (shellSize / 2) * Math.sin(angle);
+                        
+                        electron.style.top = `calc(50% + ${y}px - 10px)`;
+                        electron.style.left = `calc(50% + ${x}px - 10px)`;
+                        
+                        shell.appendChild(electron);
+                    }
+                    
+                    atomContainer.appendChild(shell);
+                });
+                
+                // Update element information
+                updateElementInfo(atomicNumber);
+            }
+            
+            // Function to update element information
+            function updateElementInfo(atomicNumber) {
+                const element = elements[atomicNumber];
+                document.getElementById('element-name').textContent = `మూలకం: ${element.name}`;
+                document.getElementById('element-symbol').textContent = `సంకేతం: ${element.symbol}`;
+                document.getElementById('atomic-number-display').textContent = `పరమాణు సంఖ్య: ${atomicNumber}`;
+                document.getElementById('electron-config').textContent = `ఎలక్ట్రాన్ విన్యాసం: ${element.config.join(', ')}`;
+                
+                // Create shell information
+                const shellInfo = element.config.map((count, index) => {
+                    const shellName = String.fromCharCode(75 + index); // K, L, M, N
+                    return `${shellName}=${count}`;
+                }).join(', ');
+                
+                document.getElementById('electron-shells').textContent = `కక్ష్యలు: ${shellInfo}`;
+            }
+            
+            // Event listeners
+            generateButton.addEventListener('click', function() {
+                let atomicNumber = parseInt(atomicNumberInput.value);
+                if (isNaN(atomicNumber) || atomicNumber < 1 || atomicNumber > 20) {
+                    atomicNumber = 3;
+                    atomicNumberInput.value = 3;
+                }
+                createAtom(atomicNumber);
+            });
+            
+            exampleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const atomicNumber = parseInt(this.getAttribute('data-number'));
+                    atomicNumberInput.value = atomicNumber;
+                    createAtom(atomicNumber);
+                });
+            });
+            
+            // Initialize with Lithium (atomic number 3)
+            createAtom(3);
+        });
+    </script>
+</body>
+</html>
